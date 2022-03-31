@@ -35,7 +35,7 @@ exports.findAllWhere = (req, res) => {
     if (Object.hasOwnProperty.call(title, field)) {
       const titleValue = title[field];
 
-      Tutorial.findAll({ where: { [field]: titleValue } }) // не получается поместить переменную для имени поля, потому что оно читается как строка и выдает ошибку, что такого поля нет
+      Tutorial.findAll({ where: { [field]: titleValue } })
         .then((data) => {
           res.send(data);
         })
