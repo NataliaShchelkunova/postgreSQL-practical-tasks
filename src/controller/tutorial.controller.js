@@ -31,34 +31,38 @@ exports.findAll = (req, res) => {
 //задание 1 получение данных по полю и значению от клиента
 exports.findAllWhere = (req, res) => {
   const title = req.query;
-  for (const field in title) {
-    if (Object.hasOwnProperty.call(title, field)) {
-      const titleValue = title[field];
-
-      Tutorial.findAll({ where: { [field]: titleValue } })
-        .then((data) => {
-          res.send(data);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while retrieving tutorials.",
-          });
+  if (
+    title.hasOwnProperty("title") ||
+    title.hasOwnProperty("description") ||
+    title.hasOwnProperty("published")
+  ) {
+    Tutorial.findAll({ where: title })
+      .then((data) => {
+        res.send(data);
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving tutorials.",
         });
-    } else {
-      res.send({
-        message: `check the data you sent.`,
       });
-    }
+  } else {
+    res.send({
+      message: `check the data you sent.`,
+    });
   }
 };
 
 //задание 2 получение данных по нескольким полям
 exports.findAllWhereTwoFields = (req, res) => {
-  const { title, description } = req.query;
-  if (body.hasOwnProperty("title") && body.hasOwnProperty("description")) {
+  const fields = req.query;
+  if (
+    (fields.hasOwnProperty("title") && fields.hasOwnProperty("description")) ||
+    (fields.hasOwnProperty("published") && fields.hasOwnProperty("title")) ||
+    (fields.hasOwnProperty("published") && fields.hasOwnProperty("description"))
+  ) {
     Tutorial.findAll({
-      where: { title, description },
+      where: fields,
       order: ["id"],
     })
       .then((result) => {
@@ -103,7 +107,7 @@ exports.findWithPaginations = (req, res) => {
   const { limit, offset } = req.query;
 
   const limitCheck = limit ? limit : null;
-  const offsetCheck = offset ? offset : null;
+  const offsetCheck = offset ? offset * limit : null;
 
   Tutorial.findAll({ limit: limitCheck, offset: offsetCheck, order: ["id"] })
     .then((result) => {
